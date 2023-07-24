@@ -7,7 +7,7 @@ import random
 import datetime
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("Dyp!"))
 nukeron = 'on'
-token = 'MTEyOTgwMDMyMjA2NDMyMjYxMA.Giyqr4.KJmnzlRBMOcRvA3cl07nJfRUbOr1tvyFbtEMyo'
+token = '---'
 #####################################
 @bot.event 
 async def on_ready():
