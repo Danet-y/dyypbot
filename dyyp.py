@@ -293,13 +293,6 @@ async def reroll(ctx, channel: discord.TextChannel, id_ : int):
     else:
         await ctx.send("`[!] You don't have permission to giveaway.`")
 
-@bot.command()
-async def join(ctx):
-    channel = ctx.author.voice.channel
-    await channel.connect()
-@bot.command()
-async def leave(ctx):
-    await ctx.voice_client.disconnect()
 #######################################################################################
 #######################################################################################
 #######################################################################################
