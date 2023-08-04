@@ -1,13 +1,29 @@
 import discord
 from discord.ext import commands
 from discord.ext.commands import Bot
-import asyncio
+from googletrans import Translator
 import asyncio
 import random
 import datetime
-bot = commands.Bot(command_prefix=commands.when_mentioned_or("Dyp!"))
+import youtube_dl
+bot = commands.Bot('dyp.', description='Dyyyyp')
 nukeron = 'on'
-token = '---'
+token = '--'
+YTDL_OPTS = {
+        'format': 'bestaudio/best',
+        'extractaudio': True,
+        'audioformat': 'mp3',
+        'outtmpl': '%(extractor)s-%(id)s-%(title)s.%(ext)s',
+        'restrictfilenames': True,
+        'noplaylist': True,
+        'nocheckcertificate': True,
+        'ignoreerrors': False,
+        'logtostderr': False,
+        'quiet': True,
+        'no_warnings': True,
+        'default_search': 'auto',
+        'source_address': '0.0.0.0',
+    }
 #####################################
 @bot.event 
 async def on_ready():
@@ -17,7 +33,6 @@ async def on_ready():
     print("Ready!")
     await bot.change_presence(activity=discord.Activity(type=discord.ActivityType.watching, name="🧨Danet🧨(6dnt)"))
 #####################################
-
 #####################################
 
 
@@ -25,25 +40,31 @@ async def on_ready():
 #######################################################################################
 #######################################################################################
 
-@bot.command(pass_context=True)
-async def dy_help(ctx):
+@bot.command()
+async def helpy(ctx):
     embed = discord.Embed(title=f"Dyyp Help",color=0xFF5733)
-    embed.add_field(name="dy_clear:",value = f'', inline=False)
-    embed.add_field(name="Clear msg with amount", value = f'dy_clear Number' ,inline=False)
+    embed.add_field(name="clear:",value = f'', inline=False)
+    embed.add_field(name="Clear msg with amount", value = f'clear Number' ,inline=False)
 
-    embed.add_field(name="dy_txt:", value = f'', inline=False)
-    embed.add_field(name="Crete Channel with amount", value = f'dy_txt Name Number' , inline=False)
+    embed.add_field(name="txt:", value = f'', inline=False)
+    embed.add_field(name="Crete Channel with amount", value = f'txt Name Number' , inline=False)
 
-    embed.add_field(name="dy_catg:",value = f'', inline=False)
-    embed.add_field(name="Crete Catgory with amount",value = f'dy_catg Name' , inline=False)
+    embed.add_field(name="catg:",value = f'', inline=False)
+    embed.add_field(name="Crete Catgory with amount",value = f'catg Name' , inline=False)
 
     embed.add_field(name="============", value = f'', inline=False)
 
-    embed.add_field(name="dy_avatar:", value = f'', inline=False)
-    embed.add_field(name="Avatar of Users", value = f'dy_avatar @user' , inline=False)
+    embed.add_field(name="avatar:", value = f'', inline=False)
+    embed.add_field(name="Avatar of Users", value = f'avatar @user' , inline=False)
 
-    embed.add_field(name="dy_userinfo:",value = f'', inline=False)
-    embed.add_field(name="Info About User",value = f'dy_userinfo @user' , inline=False)
+    embed.add_field(name="userinfo:",value = f'', inline=False)
+    embed.add_field(name="Info About User",value = f'userinfo @user' , inline=False)
+
+    embed.add_field(name="anon:", value = f'', inline=False)
+    embed.add_field(name="Message Anonymouse to someone",value = f'anon @user message' , inline=False)
+
+    embed.add_field(name="translate:", value = f'', inline=False)
+    embed.add_field(name="Translate message",value = f'translate lang message' , inline=False)
 
     embed.add_field(name="=============",value = f'', inline=False)
 
@@ -58,11 +79,11 @@ async def dy_help(ctx):
 
     embed.add_field(name="=============",value = f'',  inline=False)
 
-    embed.add_field(name="dy_giveaway:", value = f'', inline=False)
-    embed.add_field(name="Giveaway",value = f'dy_giveaway C_id Prize Time' , inline=False)
+    embed.add_field(name="giveaway:", value = f'', inline=False)
+    embed.add_field(name="Giveaway",value = f'giveaway C_id Prize Time' , inline=False)
 
-    embed.add_field(name="dy_reroll:", value = f'', inline=False)
-    embed.add_field(name="reroll giveaway",value = f'dy_reroll C_id Msg_id', inline=False)
+    embed.add_field(name="reroll:", value = f'', inline=False)
+    embed.add_field(name="reroll giveaway",value = f'reroll C_id Msg_id', inline=False)
     
     embed.set_footer(text="Dyyp Bot")
     await ctx.send(embed=embed)
@@ -72,7 +93,7 @@ async def dy_help(ctx):
 
 ##FUN:
 @bot.command()
-async def dy_slap(ctx, user: discord.Member=None):
+async def slap(ctx, user: discord.Member=None):
     if user is None:
         message = "I don't wanna slap you!"
     else:
@@ -87,7 +108,7 @@ async def dy_slap(ctx, user: discord.Member=None):
 
 ##Clear
 @bot.command(pass_context=True)
-async def dy_clear(ctx, number : int):
+async def clear(ctx, number : int):
     guild = ctx.message.guild
     if ctx.message.author.guild_permissions.administrator:        
         try:
@@ -101,7 +122,8 @@ async def dy_clear(ctx, number : int):
 
 ##addchannel
 @bot.command()
-async def dy_txt(ctx, *, name=None):
+ 
+async def txt(ctx, *, name=None):
     guild = ctx.message.guild
     if ctx.message.author.guild_permissions.administrator:
         if name == None:
@@ -124,7 +146,7 @@ async def dy_txt(ctx, *, name=None):
 
 ##category create
 @bot.command()
-async def dy_catg(ctx, *, name):
+async def catg(ctx, *, name):
     guild = ctx.message.guild
     if ctx.message.author.guild_permissions.administrator:
         await ctx.guild.create_category(name)
@@ -138,7 +160,7 @@ async def dy_catg(ctx, *, name):
 
 ##avatar
 @bot.command(pass_context=True)
-async def dy_avatar(ctx, user: discord.Member):
+async def avatar(ctx, user: discord.Member):
     embed=discord.Embed(title=f"Avater of {user}", color=0xFF5733)
     embed.set_image(url=user.avatar_url)
     embed.set_footer(text="Dyyp Bot!")
@@ -147,7 +169,7 @@ async def dy_avatar(ctx, user: discord.Member):
 
 ##userinfo:
 @bot.command(pass_context=True)
-async def dy_userinfo(ctx, user: discord.Member):
+async def userinfo(ctx, user: discord.Member):
     
     embed = discord.Embed(title=f"{user.name}'s Info",color=0xFF5733)
     embed.add_field(name="Name", value=user.name, inline=False)
@@ -159,6 +181,23 @@ async def dy_userinfo(ctx, user: discord.Member):
     embed.set_footer(text="Dyyp Bot")
     await ctx.send(embed=embed)
 
+##annon chat:
+@bot.command()
+async def anon(ctx, member: discord.Member, *, content):
+    await ctx.channel.purge(limit=1)
+    ##
+    chan = await member.create_dm()
+    embed=discord.Embed(title=f"you have New Message:", color=0xFF5733)
+    embed.add_field(name="message:", value = f'{content}' ,inline=False)
+    embed.set_footer(text="Dyyp Bot!")
+    await chan.send(embed=embed)
+
+##Translate
+@bot.command()
+async def translate(ctx, lang, *, msg):
+    translator = Translator()
+    translation = translator.translate(msg, dest=lang)
+    await ctx.send(translation.text)
 
 #######################################################################################
 #######################################################################################
@@ -207,7 +246,7 @@ async def dyn_spam(ctx, message: str , numb: int):
 
 ##GiveAway
 @bot.command()
-async def dy_giveaway(ctx, channel: discord.TextChannel, time : int , prize : str):
+async def giveaway(ctx, channel: discord.TextChannel, time : int , prize : str):
     guild = ctx.message.guild
     if ctx.message.author.guild_permissions.administrator:
         give = discord.Embed(color=0xFF5733)
@@ -234,10 +273,10 @@ async def dy_giveaway(ctx, channel: discord.TextChannel, time : int , prize : st
     else:
         await ctx.send("`[!] You don't have permission to giveaway.`")
 
-
+    
 ##Rerool
 @bot.command()
-async def dy_reroll(ctx, channel: discord.TextChannel, id_ : int):
+async def reroll(ctx, channel: discord.TextChannel, id_ : int):
     if ctx.message.author.guild_permissions.administrator:
         try:
             new_message = await channel.fetch_message(id_)
@@ -254,7 +293,13 @@ async def dy_reroll(ctx, channel: discord.TextChannel, id_ : int):
     else:
         await ctx.send("`[!] You don't have permission to giveaway.`")
 
-
+@bot.command()
+async def join(ctx):
+    channel = ctx.author.voice.channel
+    await channel.connect()
+@bot.command()
+async def leave(ctx):
+    await ctx.voice_client.disconnect()
 #######################################################################################
 #######################################################################################
 #######################################################################################
